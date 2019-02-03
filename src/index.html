@@ -4,10 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>React and Webpack4</title>
+  <title>st-select test</title>
 </head>
 <body>
 <h1>Hello</h1>
-  <section id="index"></section>
+<section id="index"></section>
+
+<ul>
+  <li>Only search if value is entered ( clear target if not ).</li>
+  <li>What is: The Components object is deprecated. It will soon be removed.</li>
+  <li> for each "st-select" do what is done for id=index
+</ul>
+<h2>DBFolder</h2>
+<div class="st-select" data-class="DBFolder" data-host="https://demo1.jobtrack.com.au" data-field="name" data-target="folder-global-key"/>
+<input name="folder-global-key"/>
+<h2>DBFile</h2>
+<div class="st-select" data-class="DBFile"  data-host="https://demo2.jobtrack.com.au" data-field="name" data-target="file-global-key"/>
+<input name="file-global-key"/>
+
+<h2>DBFile with filter</h2>
+<div
+  class="st-select"
+  data-class="DBFile"
+  data-host="https://demo2.jobtrack.com.au"
+  data-field="name"
+  data-target="file-global-key2"
+  data-filter="path like '/docs/web/*'"
+/>
+<input name="file-global-key2"/>
+
+
+<h2>DBFile with existing key</h2>
+<div
+  class="st-select"
+  data-class="DBFile"
+  data-host="https://demo2.jobtrack.com.au"
+  data-field="name"
+  data-target="file-global-key3"
+/>
+<input name="file-global-key3" value="2731797@2097152781~632@1"/>
+
 </body>
 </html>

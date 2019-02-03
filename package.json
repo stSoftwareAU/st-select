@@ -1,7 +1,7 @@
 {
-  "name": "simple_webpack_boilerplate",
-  "version": "1.0.0",
-  "description": "A ready to use simple webpack boilerplate",
+  "name": "st-select",
+  "version": "1.0.1",
+  "description": "Use react-select to replace GWT auto complete",
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
     "hack": "webpack-dev-server --mode development  --hot --progress --colors --debug --output-pathinfo",
