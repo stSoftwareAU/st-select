@@ -60,14 +60,21 @@ class WithCallbacks extends Component {
       // console.log(data.results[0].name);
       // var tmp= filterColors( inputValue);
       // console.log( tmp);
-      var tmp2=[
-        { value: data.results[0]._global_key, label: data.results[0].name},
-        { value: data.results[1]._global_key, label: data.results[1].name},
-        { value: data.results[2]._global_key, label: data.results[2].name},
-        { value: data.results[3]._global_key, label: data.results[3].name},
-        { value: data.results[4]._global_key, label: data.results[4].name},
+      var tmp2=[];
 
-    ];
+
+        for (var i = 0; i < data.results.length; i++) {
+            tmp2.push({ value: data.results[i]._global_key, label: data.results[i].name},);
+        }
+
+
+
+        // { value: data.results[1]._global_key, label: data.results[1].name},
+        // { value: data.results[2]._global_key, label: data.results[2].name},
+        // { value: data.results[3]._global_key, label: data.results[3].name},
+        // { value: data.results[4]._global_key, label: data.results[4].name},
+
+
       callback( tmp2);
 
     })
