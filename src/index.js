@@ -4,15 +4,12 @@ import React, {
 import ReactDOM from "react-dom";
 import AsyncSelect from 'react-select/lib/Async';
 
-
-
-
 class WithCallbacks extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading:false
+      isLoading: false
       // data: this.props,
       // Options: []
     };
@@ -56,7 +53,7 @@ class WithCallbacks extends Component {
     if (valueLength >= 3) {
       this.setState({
         validValue: true,
-        isLoading:true
+        isLoading: true
       })
       let dataSet = this.props.data.dataset
       let hostitem = dataSet.host;
@@ -73,10 +70,7 @@ class WithCallbacks extends Component {
         limit: 5
       } // or:
       url.search = new URLSearchParams(params)
-      // var request = new Request({
-      //   url: 'https://demo1.jobtrack.com.au/ReST/v8/class/DBFile',
-      //   method: 'GET'
-      // });
+
       fetch(
           url, {
             //  credentials: 'include'
@@ -98,7 +92,7 @@ class WithCallbacks extends Component {
           // });
 
           this.setState({
-            isLoading:false
+            isLoading: false
           })
 
           callback(tmp);
@@ -107,7 +101,7 @@ class WithCallbacks extends Component {
       // callback();
       this.setState({
         validValue: false,
-        isLoading:false
+        isLoading: false
       });
 
       callback();
@@ -116,11 +110,9 @@ class WithCallbacks extends Component {
 
   render() {
     return ( <
-      div >
-      // <pre>inputValue: "{this.state.inputValue}"</pre>
-      <
-      AsyncSelect
-      isLoading={this.state.isLoading}
+      AsyncSelect isLoading = {
+        this.state.isLoading
+      }
       cacheOptions = {
         true
       }
@@ -137,8 +129,7 @@ class WithCallbacks extends Component {
       }
       // defaultOptions=false
       // onInputChange={this.handleInputChange}
-      /> <
-      /div>
+      />
     );
   }
 }
@@ -146,7 +137,8 @@ class WithCallbacks extends Component {
 let stselects = document.getElementsByClassName('st-select');
 for (var i = 0; i < stselects.length; i++) {
   // ReactDOM.render(<WithCallbacks data={stselects[i]}/>, stselects[i]);
-  ReactDOM.render( < WithCallbacks data = {
+  ReactDOM.render( <
+    WithCallbacks data = {
       stselects[i]
     }
     />, stselects[i]);
