@@ -5,20 +5,31 @@ import AsyncSelect from 'react-select/lib/Async';
 
 
 
-
 class WithCallbacks extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      data: this.props
+      data: this.props,
+      Options: []
     };
 
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.render = this.render.bind(this);
     this.loadOptions = this.loadOptions.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
+
+onChange(newValue){
+  let targetID=this.props.data.dataset.target;
+  if(targetID){
+      console.log(targetID);
+      console.log(newValue.value);
+    //document.getElementsByName("folder-global-key")[0]
+    document.getElementsByName(targetID)[0].value = newValue.value;
+  }
+}
 
 
   handleInputChange(newValue) {
@@ -29,66 +40,68 @@ class WithCallbacks extends Component {
       return inputValue;
     }
 
+
   loadOptions(inputValue, callback){
-    let dataSet = this.props.data.dataset
-    let hostitem = dataSet.host;
-    let classitem = dataSet.class;
-    let nameitem = dataSet.field;
-    console.log(dataSet)
-    console.log(hostitem + " " + classitem + " " + nameitem);
 
-     var url = new URL(hostitem + '/ReST/v8/class/' + classitem)
-  //  var url = new URL(stselects[i].dataset.host)
-  //  var url = new URL('https://demo1.jobtrack.com.au/ReST/v8/class/DBFile')
-    var params = {q:"name matches '" + inputValue.trim().replace( '\\','\\\\').replace( "'","\\'") +"*'"} // or:
-    url.search = new URLSearchParams(params)
+    var valueLength = inputValue.length;
+    if(valueLength >= 3){
 
-    // var request = new Request({
-    //   url: 'https://demo1.jobtrack.com.au/ReST/v8/class/DBFile',
-    //   method: 'GET'
-    // });
-    fetch(
-      url,
-      {
-      //  credentials: 'include'
-      }
-    )
-    .then( results => {
-      return results.json();
-    }).then( data => {
-      console.log(data.results[0]);
-      // console.log(data.results[0].name);
-      // var tmp= filterColors( inputValue);
-      // console.log( tmp);
-      var tmp2=[];
-
-
+      let dataSet = this.props.data.dataset
+      let hostitem = dataSet.host;
+      let classitem = dataSet.class;
+      let nameitem = dataSet.field;
+    //  console.log(dataSet) ?limit=5
+      console.log(hostitem + " " + classitem + " " + nameitem);
+      var url = new URL(hostitem + '/ReST/v8/class/' + classitem)
+      console.log(url)
+    //  var url = new URL(stselects[i].dataset.host)
+    //  var url = new URL('https://demo1.jobtrack.com.au/ReST/v8/class/DBFile')
+      var params = {q:"name matches '" + inputValue.trim().replace( '\\','\\\\').replace( "'","\\'") +"*'", limit: 5} // or:
+      url.search = new URLSearchParams(params)
+      // var request = new Request({
+      //   url: 'https://demo1.jobtrack.com.au/ReST/v8/class/DBFile',
+      //   method: 'GET'
+      // });
+      fetch(
+        url,
+        {
+        //  credentials: 'include'
+        }
+      )
+      .then( results => {
+        return results.json();
+      }).then( data => {
+        var tmp = []
         for (var i = 0; i < data.results.length; i++) {
-            tmp2.push({ value: data.results[i]._global_key, label: data.results[i].name},);
+          tmp.push({ value: data.results[i]._global_key, label: data.results[i].name},);
         }
 
+         this.setState({
+           Options: tmp
+         });
 
 
-        // { value: data.results[1]._global_key, label: data.results[1].name},
-        // { value: data.results[2]._global_key, label: data.results[2].name},
-        // { value: data.results[3]._global_key, label: data.results[3].name},
-        // { value: data.results[4]._global_key, label: data.results[4].name},
-
-
-      callback( tmp2);
-
-    })
+        callback( tmp);
+      })
+    } else {
+      callback();
+    }
   };
+
+
+
+
   render() {
     return (
       <div>
         <pre>inputValue: "{this.state.inputValue}"</pre>
         <AsyncSelect
           cacheOptions
+          // inputValue
           loadOptions={this.loadOptions}
+          onChange={this.onChange}
           defaultOptions
-          onChange={this.handleOnChange}
-          onInputChange={this.handleInputChange}
+          // onInputChange={this.handleInputChange}
         />
       </div>
     );
@@ -98,6 +111,7 @@ class WithCallbacks extends Component {
 
 
 let stselects = document.getElementsByClassName('st-select');
-for (var i = 0; i < stselects.length; i++) {
-  ReactDOM.render(<WithCallbacks data={stselects[i]}/>, stselects[i]);
-}
+  for (var i = 0; i < stselects.length; i++) {
+    // ReactDOM.render(<WithCallbacks data={stselects[i]}/>, stselects[i]);
+    ReactDOM.render(<WithCallbacks data={stselects[i]}/>, stselects[i]);
+  }
