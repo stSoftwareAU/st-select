@@ -4,48 +4,104 @@ import React, {
 import ReactDOM from "react-dom";
 import AsyncSelect from 'react-select/lib/Async';
 
+
 class WithCallbacks extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
-      isLoading: false
-      // data: this.props,
-      // Options: []
+      isLoading: false,
+      callfail: false,
+      loadedData: '',
     };
 
-    // this.handleInputChange = this.handleInputChange.bind(this);
     this.render = this.render.bind(this);
     this.loadOptions = this.loadOptions.bind(this);
     this.onChange = this.onChange.bind(this);
     this.noOptionsMessage = this.noOptionsMessage.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+
+    let targetID = this.props.data.dataset.target;
+    if (targetID) {
+      let key=document.getElementsByName(targetID)[0].value;
+
+      if( key )
+      {
+        this.state.pending=true;
+        this.componentDidMount;
+      }
+      else {
+        this.state.pending=false;
+      }
+    }
   }
+
+  componentDidMount(){
+
+    let targetlocation = this.props.data.dataset.target
+    let retrivedGlobalKey = document.getElementsByName(targetlocation)[0].value
+    var isloaded = document.getElementsByName(targetlocation)[0].dataset.loaded
+
+    if(retrivedGlobalKey){
+      if(!isloaded){
+      document.getElementsByName(targetlocation)[0].dataset.loaded = true;
+      let dataSet = this.props.data.dataset
+      let hostdata = dataSet.host;
+      let classdata = dataSet.class;
+      let fielddata = dataSet.field;
+
+      var url = hostdata + "/ReST/v8/class/"+ classdata + "/" + retrivedGlobalKey;
+
+         fetch(
+           url, {
+             //    credentials: credentials
+             }
+           )
+           .catch( err => {
+               console.warn("UNABLE TO RETRIVE OPTIONS: " + err);
+               this.setState({
+                 pending:false
+               });
+             })
+           .then(results => {
+               return results.json();
+           })
+           .then(data => {
+             console.log(data);
+             var item = data.results
+             this.setState({
+               pending:false,
+               value:item
+            });
+          })
+        }
+      }
+    }
+
+
+
+
+
 
   onChange(newValue) {
     let targetID = this.props.data.dataset.target;
     if (targetID) {
-      // console.log(targetID);
-      // console.log(newValue.value);
-      //document.getElementsByName("folder-global-key")[0]
       document.getElementsByName(targetID)[0].value = newValue.value;
     }
   }
 
   noOptionsMessage() {
-    if (this.state.validValue) {
-      return "No Matching records"
+    if (!this.state.callfail) {
+      if (this.state.validValue) {
+        return "No Matching records"
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      return "Cannot Get records"
     }
   }
-  // handleInputChange(newValue) {
-  //     const inputValue = newValue.replace(/\W/g, '');
-  //     this.setState({
-  //       inputValue,
-  //     });
-  //     return inputValue;
-  //   }
-
 
   loadOptions(inputValue, callback) {
 
@@ -53,49 +109,82 @@ class WithCallbacks extends Component {
     if (valueLength >= 3) {
       this.setState({
         validValue: true,
-        isLoading: true
+        isLoading: true,
+        callfail: false
       })
+
       let dataSet = this.props.data.dataset
       let hostitem = dataSet.host;
       let classitem = dataSet.class;
       let nameitem = dataSet.field;
-      //  console.log(dataSet) ?limit=5
+      let filteritem = dataSet.filter;
+      let credentialsitem = dataSet.credentials;
+
       console.log(hostitem + " " + classitem + " " + nameitem);
       var url = new URL(hostitem + '/ReST/v8/class/' + classitem)
-      console.log(url)
-      //  var url = new URL(stselects[i].dataset.host)
-      //  var url = new URL('https://demo1.jobtrack.com.au/ReST/v8/class/DBFile')
+
+       if(dataSet.filter){
+        var qdata = filteritem + "AND name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'";
+       } else {
+         var qdata = "name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'";
+       }
+
       var params = {
-        q: "name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'",
+        q: qdata,
         limit: 5
       } // or:
+
       url.search = new URLSearchParams(params)
+      console.log(url);
+
+      if(credentialsitem){
+        var credentials = 'true'
+      } else {
+        var credentials= 'false'
+      }
 
       fetch(
-          url, {
-            //  credentials: 'include'
+          url,{
+              credentials: credentials
           }
         )
-        .then(results => {
-          return results.json();
-        }).then(data => {
-          var tmp = []
-          for (var i = 0; i < data.results.length; i++) {
-            tmp.push({
-              value: data.results[i]._global_key,
-              label: data.results[i].name
-            }, );
-          }
 
-          // this.setState({
-          //   Options: tmp
-          // });
-
-          this.setState({
-            isLoading: false
+        .catch( err => {
+            console.log("UNABLE TO RETRIVE OPTIONS: " + err);
+              callback();
           })
 
+
+        .then(results => {
+          if(results){
+            return results.json();
+          } else {
+            return;
+          }
+        })
+
+        .then(data => {
+          if(data){
+            var tmp = []
+            for (var i = 0; i < data.results.length; i++) {
+              tmp.push({
+                value: data.results[i]._global_key,
+                label: data.results[i].name
+              }, );
+            }
+
+            this.setState({
+              isLoading: false,
+              callfail: false
+            })
+          } else {
+            this.setState({
+              isLoading: false,
+              callfail: true
+            })
+          }
           callback(tmp);
+
         })
     } else {
       // callback();
@@ -108,29 +197,43 @@ class WithCallbacks extends Component {
     }
   };
 
+
+
   render() {
-    return ( <
-      AsyncSelect isLoading = {
-        this.state.isLoading
+
+      if( this.state.pending)
+      {
+        return <span>pending...</span>;
       }
-      cacheOptions = {
-        true
+      else {
+        return ( <
+          AsyncSelect isLoading = {
+            this.state.isLoading
+          }
+          cacheOptions = {
+            true
+          }
+          // cacheOptions
+          // inputValue
+          loadOptions = {
+            this.loadOptions
+          }
+          onChange = {
+            this.onChange
+          }
+          noOptionsMessage = {
+            this.noOptionsMessage
+          }
+           defaultInputValue = {
+             this.state.value
+           }
+          // defaultOptions=false
+          // onInputChange={this.handleInputChange}
+          />
+        );
+
       }
-      // cacheOptions
-      // inputValue
-      loadOptions = {
-        this.loadOptions
-      }
-      onChange = {
-        this.onChange
-      }
-      noOptionsMessage = {
-        this.noOptionsMessage
-      }
-      // defaultOptions=false
-      // onInputChange={this.handleInputChange}
-      />
-    );
+
   }
 }
 
