@@ -16,11 +16,13 @@ class WithCallbacks extends Component {
       defaultOp: []
     };
 
-    this.render = this.render.bind(this);
-    this.loadOptions = this.loadOptions.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.noOptionsMessage = this.noOptionsMessage.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
+      this.render = this.render.bind(this);
+      this.loadOptions = this.loadOptions.bind(this);
+      this.onChange = this.onChange.bind(this);
+      this.noOptionsMessage = this.noOptionsMessage.bind(this);
+      this.componentDidMount = this.componentDidMount.bind(this);
+      this.onInputChange = this.onInputChange.bind(this);
+
 
     let targetID = this.props.data.dataset.target;
     if (targetID) {
@@ -68,22 +70,35 @@ class WithCallbacks extends Component {
                return results.json();
            })
            .then(data => {
-             console.log(data);
              var item = data.name
+             console.log(this.state.value)
              this.setState({
                pending:false,
                value:item
             });
+            console.log(this.state.value)
+
           })
         }
       }
     }
 
+  onInputChange(newValue) {
+
+      // let targetID = this.props.data.dataset.target;
+      // console.log('HERE XXX')
+      // console.log(newValue + 'x')
+      // var notNothing = newValue + 'x';
+      // if (targetID) {
+      //   if (newValue && newValue != "x") {
+      //     console.log('XXX')
+      //     document.getElementsByName(targetID)[0].value = newValue.value;
+      //   }
+      // }
+    }
+
   onChange(newValue) {
     let targetID = this.props.data.dataset.target;
-    console.log('HERE VVV')
-    console.log(targetID)
-
     if (targetID) {
       if (newValue) {
         document.getElementsByName(targetID)[0].value = newValue.value;
@@ -192,7 +207,8 @@ class WithCallbacks extends Component {
             })
           }
           callback(tmp);
-
+          console.log('this.state.value')
+        console.log(this.state.value)
         })
     } else {
       // callback();
@@ -205,11 +221,8 @@ class WithCallbacks extends Component {
     }
   };
 
+  render(newValue2) {
 
-
-
-  render() {
-      console.log(this.state.defaultOp)
       if( this.state.pending)
       {
         return <span>pending...</span>;
@@ -219,29 +232,27 @@ class WithCallbacks extends Component {
           AsyncSelect isLoading = {
             this.state.isLoading
           }
-          // cacheOptions = {
-          //   true
-          // }
-          // cacheOptions
-          // inputValue
-           loadOptions = {
+          loadOptions = {
             this.loadOptions
           }
-           onChange = {
+          onChange = {
             this.onChange
           }
-           noOptionsMessage = {
+          noOptionsMessage = {
             this.noOptionsMessage
           }
+          onInputChange={
+            this.onInputChange
+          }
           //defaultInputValue , defaultValue, inputValue, inputId, setValue
-
-           defaultInputValue = {
+          defaultInputValue = {
             this.state.value
           }
-           defaultOptions={
+
+          defaultOptions={
             this.state.defaultOp
           }
-           isClearable
+         isClearable
 
           />
         );
