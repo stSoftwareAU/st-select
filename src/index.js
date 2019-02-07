@@ -13,7 +13,7 @@ class WithCallbacks extends Component {
     this.state = {
       isLoading: false,
       callfail: false,
-      loadedData: '',
+      defaultOp: []
     };
 
     this.render = this.render.bind(this);
@@ -69,7 +69,7 @@ class WithCallbacks extends Component {
            })
            .then(data => {
              console.log(data);
-             var item = data.results
+             var item = data.name
              this.setState({
                pending:false,
                value:item
@@ -79,29 +79,34 @@ class WithCallbacks extends Component {
       }
     }
 
-
-
-
-
-
   onChange(newValue) {
     let targetID = this.props.data.dataset.target;
+    console.log('HERE VVV')
+    console.log(targetID)
+
     if (targetID) {
-      document.getElementsByName(targetID)[0].value = newValue.value;
+      if (newValue) {
+        document.getElementsByName(targetID)[0].value = newValue.value;
+      } else {
+        document.getElementsByName(targetID)[0].value = "";
+      }
     }
   }
 
-  noOptionsMessage() {
+  noOptionsMessage(inputvalue) {
+    var item =  inputvalue.inputValue.length;
     if (!this.state.callfail) {
-      if (this.state.validValue) {
-        return "No Matching records"
-      } else {
-        return null;
+      if (inputvalue.inputValue){
+        if (inputvalue.inputValue.length >= 3) {
+          if (this.state.inputValue) {return "No Matching records" } else {return null;}
+        } else {
+          return "Not Enough Criteria To Search..."
+        }
       }
     } else {
       return "Cannot Get records"
     }
-  }
+  };
 
   loadOptions(inputValue, callback) {
 
@@ -122,13 +127,12 @@ class WithCallbacks extends Component {
 
       console.log(hostitem + " " + classitem + " " + nameitem);
       var url = new URL(hostitem + '/ReST/v8/class/' + classitem)
-
+      let qdata="";
        if(dataSet.filter){
-        var qdata = filteritem + "AND name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'";
-       } else {
-         var qdata = "name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'";
+        qdata = filteritem + " AND ";
        }
 
+      qdata += "name matches '" + inputValue.trim().replace('\\', '\\\\').replace("'", "\\'") + "*'";
       var params = {
         q: qdata,
         limit: 5
@@ -137,20 +141,22 @@ class WithCallbacks extends Component {
       url.search = new URLSearchParams(params)
       console.log(url);
 
-      if(credentialsitem){
-        var credentials = 'true'
-      } else {
-        var credentials= 'false'
-      }
+      var credentials = 'non'
+
+      // if(credentialsitem){
+      //   var credentials = 'true'
+      // } else {
+      //   var credentials= 'false'
+      // }
 
       fetch(
           url,{
-              credentials: credentials
+              ///credentials: credentials
           }
         )
 
         .catch( err => {
-            console.log("UNABLE TO RETRIVE OPTIONS: " + err);
+            console.warn("UNABLE TO RETRIVE OPTIONS: " + err);
               callback();
           })
 
@@ -166,6 +172,7 @@ class WithCallbacks extends Component {
         .then(data => {
           if(data){
             var tmp = []
+          //  var clearoption = tmp.push({value: "", label: ""});
             for (var i = 0; i < data.results.length; i++) {
               tmp.push({
                 value: data.results[i]._global_key,
@@ -175,7 +182,8 @@ class WithCallbacks extends Component {
 
             this.setState({
               isLoading: false,
-              callfail: false
+              callfail: false,
+              defaultOp: tmp
             })
           } else {
             this.setState({
@@ -199,8 +207,9 @@ class WithCallbacks extends Component {
 
 
 
-  render() {
 
+  render() {
+      console.log(this.state.defaultOp)
       if( this.state.pending)
       {
         return <span>pending...</span>;
@@ -210,25 +219,30 @@ class WithCallbacks extends Component {
           AsyncSelect isLoading = {
             this.state.isLoading
           }
-          cacheOptions = {
-            true
-          }
+          // cacheOptions = {
+          //   true
+          // }
           // cacheOptions
           // inputValue
-          loadOptions = {
+           loadOptions = {
             this.loadOptions
           }
-          onChange = {
+           onChange = {
             this.onChange
           }
-          noOptionsMessage = {
+           noOptionsMessage = {
             this.noOptionsMessage
           }
+          //defaultInputValue , defaultValue, inputValue, inputId, setValue
+
            defaultInputValue = {
-             this.state.value
-           }
-          // defaultOptions=false
-          // onInputChange={this.handleInputChange}
+            this.state.value
+          }
+           defaultOptions={
+            this.state.defaultOp
+          }
+           isClearable
+
           />
         );
 
