@@ -21,8 +21,7 @@ class WithCallbacks extends Component {
       this.onChange = this.onChange.bind(this);
       this.noOptionsMessage = this.noOptionsMessage.bind(this);
       this.componentDidMount = this.componentDidMount.bind(this);
-      this.onInputChange = this.onInputChange.bind(this);
-
+      this.handleBlur = this.handleBlur.bind(this);
 
     let targetID = this.props.data.dataset.target;
     if (targetID) {
@@ -83,19 +82,19 @@ class WithCallbacks extends Component {
       }
     }
 
-  onInputChange(newValue) {
+  handleBlur(value, inputValue) {
+    console.log(value)
+      console.log(inputValue)
+    console.log(this.state.value)
+    console.log(this.props)
 
-      // let targetID = this.props.data.dataset.target;
-      // console.log('HERE XXX')
-      // console.log(newValue + 'x')
-      // var notNothing = newValue + 'x';
-      // if (targetID) {
-      //   if (newValue && newValue != "x") {
-      //     console.log('XXX')
-      //     document.getElementsByName(targetID)[0].value = newValue.value;
-      //   }
-      // }
-    }
+    this.setState({
+      value: this.state.value
+    })
+
+    this.props.data.firstChild.inputMode.onBlur();
+
+  }
 
   onChange(newValue) {
     let targetID = this.props.data.dataset.target;
@@ -140,7 +139,7 @@ class WithCallbacks extends Component {
       let filteritem = dataSet.filter;
       let credentialsitem = dataSet.credentials;
 
-      console.log(hostitem + " " + classitem + " " + nameitem);
+      console.log(hostitem + " " + classitem + " " + nameitem + " " + credentialsitem);
       var url = new URL(hostitem + '/ReST/v8/class/' + classitem)
       let qdata="";
        if(dataSet.filter){
@@ -156,19 +155,23 @@ class WithCallbacks extends Component {
       url.search = new URLSearchParams(params)
       console.log(url);
 
-      var credentials = 'non'
+      //console.log(credentialsitem);
 
-      // if(credentialsitem){
-      //   var credentials = 'true'
-      // } else {
-      //   var credentials= 'false'
-      // }
+       if(credentialsitem){
+         //console.log('yes');
+         var credentials = ''
+       } else {
+         //console.log('no');
+         var credentials= 'credentials : include'
+       }
 
       fetch(
           url,{
-              ///credentials: credentials
+      //        credentials
           }
         )
+
+
 
         .catch( err => {
             console.warn("UNABLE TO RETRIVE OPTIONS: " + err);
@@ -207,8 +210,8 @@ class WithCallbacks extends Component {
             })
           }
           callback(tmp);
-          console.log('this.state.value')
-        console.log(this.state.value)
+          //console.log('this.state.value')
+        //console.log(this.state.value)
         })
     } else {
       // callback();
@@ -223,11 +226,13 @@ class WithCallbacks extends Component {
 
   render(newValue2) {
 
+    console.log(this)
       if( this.state.pending)
       {
         return <span>pending...</span>;
       }
       else {
+        var input2 = document.getElementsByName(this.props.data.dataset.target)[0];
         return ( <
           AsyncSelect isLoading = {
             this.state.isLoading
@@ -244,14 +249,20 @@ class WithCallbacks extends Component {
           onInputChange={
             this.onInputChange
           }
+          defaultOptions={
+            this.state.defaultOp
+          }
           //defaultInputValue , defaultValue, inputValue, inputId, setValue
+          // onBlur={() => field.onBlur({value: field.value})}
+          onBlur={this.handleBlur}
+
           defaultInputValue = {
             this.state.value
           }
 
-          defaultOptions={
-            this.state.defaultOp
-          }
+
+
+
          isClearable
 
           />
